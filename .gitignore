@@ -1,0 +1,121 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+dist/
+build/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+*.egg-info/
+.installed.cfg
+*.whl
+MANIFEST.in
+
+# PyInstaller
+#  Often these are written to the current working directory
+_MEI*
+*.spec
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mypy
+.mypy_cache/
+mypy-report/
+mypy-html-report/
+
+# Environments
+.env
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# OS generated files #
+.DS_Store
+Thumbs.db
+
+# Editor/IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*~
+*.log
+*.diff
+*.patch
+nbproject/
+DerivedData/
+*.tmproj
+*.sublime-project
+*.sublime-workspace
+*.esproj
+*.jsproj
+*.sln
+*.suo
+*.ntvs*
+*.njsproj
+*.pdb
+*.user
+*.aps
+ipch/
+
+# Virtualenv folder
+venv
+
+# Compiled source #
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.out
+*.pyc
+
+# Packages #
+# It's better to unpack these files and commit the raw source
+# Generally speaking, archives are not tracked (like zip, tar, etc)
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+
+# Unit test / coverage reports #
+tmp/
+.coverage
+.tox
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.cache
