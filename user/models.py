@@ -8,8 +8,20 @@ from utils.models import ModelWithTimeStamp
 class CustomUser(AbstractUser, ModelWithTimeStamp):
 
     phone = models.CharField(verbose_name=_("phone"), max_length=20, blank=True, null=True)
-    profile_image = models.ImageField(upload_to="profile image")
-
+    profile_image = models.ImageField(upload_to="profile_image/", blank=True, null=True) 
+    user_permissions=models.ManyToManyField( "auth.Permission",verbose_name=_("user permissions"),blank=True, help_text=_("Specific permissions for this user."),related_name="customuser_permissions",related_query_name="customuser",)
+    groups = models.ManyToManyField(
+        "auth.Group",
+        verbose_name=_("groups"),
+        blank=True,
+        help_text=_(
+            "The groups this user belongs to. A user will get all permissions "
+            "granted to each of their groups."
+        ),
+        related_name="customuser_groups",  
+        related_query_name="customuser",
+    )
+    
     @property
     def verify_email(self):
         self.email_verified = True
