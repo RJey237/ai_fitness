@@ -1,0 +1,27 @@
+version: '3.9'
+
+
+services:
+  
+  redis-test:
+    image: redis:7-alpine
+    restart: always
+
+  myapp:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8010
+    volumes:
+      - .:/myapp
+    ports:
+      - 8010:8010
+
+  celery-worker:
+    build: .
+    command: celery -A celery_test worker -l INFO
+    environment:
+      - CELERY_BROKER_URL=redis://redis-test:6379/0
+    
+    restart: always
+    depends_on:
+      - redis-test
+
