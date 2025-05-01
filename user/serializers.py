@@ -66,11 +66,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id',"first_name",'last_name','phone','user_type','car_number','email_verified','is_verified']
         
 class CardSerializer(serializers.ModelSerializer):
-    # user = UserProfileSerializer(read_only = True)
-    
-    # first_name = serializers.CharField(source = 'user.first_name',read_only = True)
-    # last_name = serializers.CharField(source = 'user.last_name',read_only = True)
-    # phone = serializers.CharField(source = 'user.phone',read_only = True)
     
     class Meta:
         model = Card
@@ -84,3 +79,8 @@ class CardSerializer(serializers.ModelSerializer):
         data =  super().to_representation(instance)
         data['first_name'] = instance.user.first_name
         return data
+
+class BmiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bmi
+        fields = ['height', 'weight', 'gender', 'birth_date']
