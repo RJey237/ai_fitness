@@ -28,8 +28,15 @@ class CustomUser(AbstractUser, ModelWithTimeStamp):
         self.save()
 
 class Bmi(models.Model):
-    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
+    class Gender(models.TextChoices):
+        MAN = 'man', 'male'
+        WOMAN = 'woman', 'female'
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     age = models.IntegerField(default=0)
     height = models.FloatField(default=0)
     weight = models.FloatField(default=0)
+    gender = models.CharField(max_length=6, choices=Gender.choices, default=Gender.MAN)  
 
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
