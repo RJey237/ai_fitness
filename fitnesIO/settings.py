@@ -91,11 +91,7 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-<<<<<<< HEAD
         'DIRS': [BASE_DIR / 'templates'],
-=======
-        'DIRS': [BASE_DIR,'templates'],
->>>>>>> javlon
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

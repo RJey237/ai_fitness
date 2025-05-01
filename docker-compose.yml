@@ -35,9 +35,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=new_fitnes
-      - POSTGRES_USER=postgres_user
-      - POSTGRES_PASSWORD=nitro
+      - POSTGRES_DB=fitnes_io
+      - POSTGRES_USER=fitnes_io_dev_user
+      - POSTGRES_PASSWORD=fitnes_io_dev_user_password
 
 volumes:
   postgres_data:

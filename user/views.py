@@ -5,7 +5,6 @@ from .serializers import RegisterSerializer,VerifySerializer,UserProfileSerializ
 from rest_framework import status
 from rest_framework.response import Response
 from .models import CustomUser
-from rest_framework.views import APIView
 from .models import Bmi
 
 import datetime
@@ -27,12 +26,11 @@ class RegisterView(ViewSet):
         data = serializer.save()
         return Response(data)
     
-class ProfileViewSet(ViewSet):
-    class ViewSet(ModelViewSet):
-        queryset = CustomUser.objects.all()
-        serializer_class = UserProfileSerializer
-        http_method_names = ['get','post']
-        permission_classes = (IsAuthenticated,)
+class ProfileViewSet(ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserProfileSerializer
+    http_method_names = ['get','post']
+    permission_classes = (IsAuthenticated,)
     
     def list(self, request, *args, **kwargs):
         serializer = UserProfileSerializer(request.user)
@@ -45,9 +43,9 @@ class ProfileViewSet(ViewSet):
         return Response(serializer.data)
 
 
-class CalculateCaloriesView(APIView):
+class CalculateCaloriesView(ViewSet):
     
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         try:
             
             activity_level = request.data.get('activity_level')
