@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'user',
     'routine',
     'parler',
+    'rest_framework',
 
 ]
 
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'fitnesIO.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR,'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,19 +75,21 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fitnesIO.wsgi.application'
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
 
 load_dotenv() 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+LOGIN_URL = 'login'
 
 DATABASES = {
     'default': {

@@ -14,25 +14,27 @@ services:
       - .:/app
     ports:
       - 8010:8010
+    depends_on:
+      - db_fitnes
   
   # celery-worker:
   #   build: .
   #   command: celery -A Parking worker -l INFO
   #   environment:
-  #     - CELERY_BROKER_URL=redis://redis-test:6379/0
+  #     - CELERY_BROKER_URL=redis://redis-fitnes:6379/0
     
   #   restart: always
   #   depends_on:
-  #     - redis-test
+  #     - redis-fitnes
 
   db_fitnes:
     image: postgres:16.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=fitnes_io
-      - POSTGRES_USER=fitnes_io_dev_user
-      - POSTGRES_PASSWORD=fitnes_io_dev_user_password
+      - POSTGRES_DB=new_fitnes
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=nitro
 
 volumes:
   postgres_data:

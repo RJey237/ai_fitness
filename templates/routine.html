@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Fitness Routine</title>
+    <style>
+        /* ... (keep existing styles) ... */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Weekly Fitness Plan</h1>
+
+        {% if routine %}
+            <div class="routine-description">
+                <p><strong>Overall Goal:</strong></p>
+                <p>{{ routine.description|linebreaksbr }}</p>
+                <p><small>Routine Start Date: {{ routine.start_date }}</small></p>
+            </div>
+
+            {% comment %} Loop through the days list prepared in the view {% endcomment %}
+            {% for day in days_to_display %}  {# USE days_to_display NOW #}
+                <div class="day-card">
+                    <div class="day-header">
+                        {% comment %} Directly access the name added in the view {% endcomment %}
+                        <h3>{{ day.name_of_day }}</h3> {# ACCESS the new attribute #}
+                        <span class="date">{{ day.week_date|date:"Y-m-d" }}</span>
+                    </div>
+
+                    {% comment %} Workout Section {% endcomment %}
+                    <div class="workout-section">
+                        <h4>Workout</h4>
+                        {% with exercises=day.dailyexercises_set.all %}
+                            {% if exercises %}
+                                <ul>
+                                    {% for exercise in exercises %}
+                                    <li>
+                                        <span class="exercise-name">{{ exercise.name }}:</span>
+                                        <span class="exercise-details">
+                                            {{ exercise.sets }} set{{ exercise.sets|pluralize }}
+                                            {% if exercise.reps == -1 %}
+                                                (AMRAP) {# Simpler AMRAP display #}
+                                            {% elif exercise.reps > 0 %}
+                                                 x {{ exercise.reps }} rep{{ exercise.reps|pluralize }}
+                                            {% endif %}
+                                            {% if exercise.description %} - {{ exercise.description }}{% endif %}
+                                            {% if exercise.duration > 0 %} ({{ exercise.duration }} mins){% endif %}
+                                        </span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="no-data">Rest Day or No Workout Scheduled.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    {% comment %} Diet Section {% endcomment %}
+                    <div class="diet-section">
+                        <h4>Diet</h4>
+                        {% with food_plan=day.dailyfood_set.first %}
+                            {% if food_plan %}
+                                <p class="diet-details">{{ food_plan.description|linebreaksbr }}</p>
+                                <p><span class="calories">Target Calories: ~{{ food_plan.callory|floatformat:0 }} kcal</span></p>
+                            {% else %}
+                                <p class="no-data">No Specific Diet Plan Provided.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div> {# End day-card #}
+            {% empty %}
+                <p>This routine doesn't have any days planned yet.</p>
+            {% endfor %}
+
+        {% else %}
+            <p>Routine not found.</p>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{% url 'chat' %}">Generate a New Routine</a>
+            {# <a href="{% url 'routine_list' %}">Back to My Routines</a> #}
+        </div>
+    </div>
+</body>
+</html>
