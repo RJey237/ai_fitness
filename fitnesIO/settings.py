@@ -142,4 +142,20 @@ AUTH_USER_MODEL = 'user.CustomUser'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 
-# eamil, twillio, google here ------------------------------------------------
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # SMTP Server configuration
+EMAIL_HOST = 'smtp.gmail.com'  # Change to your provider's SMTP server
+EMAIL_PORT = 587  # Use 465 for SSL
+EMAIL_USE_TLS = True  # Set to False if you're using SSL
+EMAIL_HOST_USER = 'mirjalolzokirov9.05@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'REMOVED_EMAIL_PASSWORD'  # Your email password or app password
+EMAIL_HOST_NAME = 'FITNESSIO'
+DEFAULT_FROM_EMAIL = f"FITNESSIO <{EMAIL_HOST_USER}>"
+
+TWILIO_ACCOUNT_SID = 'REMOVED_TWILIO_SID'
+TWILIO_AUTH_TOKEN = 'REMOVED_TWILIO_TOKEN'
+TWILIO_PHONE_NUMBER = '+1 787 482 3824'
+
+GOOGLE_CLIENT_ID = 'REMOVED_GOOGLE_CLIENT_ID'
+GOOGLE_CLIENT_SECRET = 'REMOVED_GOOGLE_CLIENT_SECRET'
+GOOGLE_REDIRECT_URI = 'http://localhost:8010/auth/google/callback/'

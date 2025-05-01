@@ -26,13 +26,13 @@ class SendSMSViewSet(viewsets.ViewSet):
             return Response({'error': 'Phone number is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            account_sid = ''
-            auth_token = ''
+            account_sid = 'REMOVED_TWILIO_SID'
+            auth_token = 'REMOVED_TWILIO_TOKEN'
             client = Client(account_sid, auth_token)
 
             verification_check = client.verify \
                 .v2 \
-                .services('') \
+                .services('VA16183ed790df30e442f3d53b9ed8cbec') \
                 .verifications \
                 .create(to=phone_number, channel='sms')
             return Response({'message': verification_check.status}, status=status.HTTP_200_OK)
@@ -47,13 +47,13 @@ class SendSMSViewSet(viewsets.ViewSet):
             return Response({'error': 'Phone number and code are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            account_sid = ''
-            auth_token = ''
+            account_sid = 'REMOVED_TWILIO_SID'
+            auth_token = 'REMOVED_TWILIO_TOKEN'
             client = Client(account_sid, auth_token)
 
             verification_check = client.verify \
                 .v2 \
-                .services('') \
+                .services('VA16183ed790df30e442f3d53b9ed8cbec') \
                 .verification_checks \
                 .create(to=phone_number, code=code)
             
