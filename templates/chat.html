@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personalized Fitness Recommendations</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
+        h1, h2, h3 { margin-bottom: 0.5em; }
+        form label { display: inline-block; min-width: 100px; margin-bottom: 5px;}
+        form input[type=number], form input[type=radio] { margin-right: 5px; }
+        form br { display: none; } /* Improve spacing */
+        form label[for=goal] { display: block; margin-top: 15px; font-weight: bold;}
+        form input[type=radio] + label { font-weight: normal; min-width: auto; }
+        form button {
+            padding: 10px 15px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        form button:hover { background-color: #0056b3; }
+        .error { color: #dc3545; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .debug { background-color: #eee; padding: 10px; margin-top: 15px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto;}
+        hr { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>Personalized Fitness Recommendations</h1>
+
+    {% if username %}
+        <h2>Welcome, {{ username.username }}!</h2>
+        {# ** Replace with your actual logout URL if needed ** #}
+        {# <p><small><a href="{% url 'logout' %}">Logout</a></small></p> #}
+    {% else %}
+        {# Optional: Message if no user could be determined #}
+        <p class="error">Could not determine user. Functionality may be limited.</p>
+    {% endif %}
+
+    {% if error %}
+        <div class="error">
+             <p><strong>Error:</strong> {{ error }}</p>
+             {% if raw_response_for_debug %}
+                 <details>
+                     <summary>Click to view Raw AI Response (for debugging)</summary>
+                     <div class="debug">{{ raw_response_for_debug }}</div>
+                 </details>
+             {% endif %}
+             {% if parsed_data_for_debug %}
+                 <details>
+                     <summary>Click to view Parsed Data (for debugging database save issue)</summary>
+                    <div class="debug">{{ parsed_data_for_debug }}</div>
+                 </details>
+             {% endif %}
+        </div>
+    {% endif %}
+
+
+    {% if success_message %}
+        <div class="success">
+            <p>{{ success_message }}</p>
+        </div>
+        {% if routine_description %}
+            <h3>Generated Routine Overview:</h3>
+            <p>{{ routine_description|linebreaksbr }}</p>
+            <p><em>The full weekly plan has been saved to your routines. You can view it elsewhere in the application.</em></p> {# Adjust this message as needed #}
+        {% endif %}
+        <hr>
+        <p><a href="{% url 'chat' %}">Generate another plan?</a></p> {# Link to reset/regenerate #}
+
+    {% else %} {# Only show the form if there isn't a success message #}
+
+        <form method="post" action="{% url 'chat' %}">
+            {% csrf_token %}
+
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" name="weight" step="0.1" required><br>
+
+            <label for="height">Height (meters):</label> <!-- Keep as meters for user input -->
+            <input type="number" id="height" name="height" step="0.01" required><br>
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required><br>
+
+            <label for="goal">Choose Your Goal:</label><br>
+            <input type="radio" id="gain_muscle" name="goal" value="gain_muscle" required>
+            <label for="gain_muscle">Gain Muscle</label><br>
+
+            <input type="radio" id="lose_weight" name="goal" value="lose_weight">
+            <label for="lose_weight">Lose Weight</label><br>
+
+            <input type="radio" id="maintain" name="goal" value="maintain">
+            <label for="maintain">Maintain</label><br><br>
+
+            <button type="submit">Generate & Save Plan</button>
+        </form>
+    {% endif %}
+
+</body>
+</html>
