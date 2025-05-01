@@ -8,7 +8,7 @@ from utils.models import ModelWithTimeStamp
 class CustomUser(AbstractUser, ModelWithTimeStamp):
 
     phone = models.CharField(verbose_name=_("phone"), max_length=20, blank=True, null=True)
-    profile_image = models.ImageField(upload_to="profile image")
+    profile_image = models.ImageField(upload_to="profile image", blank=True, null=True)
 
     @property
     def verify_email(self):

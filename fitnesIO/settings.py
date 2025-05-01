@@ -38,6 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'user',
+    'googleauth',
+    'routine',
+    'utils',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +61,7 @@ ROOT_URLCONF = 'fitnesIO.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,12 +90,12 @@ CACHES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get("SQL_ENGINE"),
-        'NAME': os.environ.get("SQL_DATABASE"),
-        'USER': os.environ.get("SQL_USER"),
-        'PASSWORD': os.environ.get("SQL_PASSWORD"),
-        'HOST': os.environ.get("SQL_HOST"),
-        'PORT': os.environ.get("SQL_PORT"),
+        'ENGINE': os.environ.get("SQL_ENGINE",'django.db.backends.postgresql'), 
+        'NAME': os.environ.get("SQL_DATABASE",'new_fitnes'),
+        'USER': os.environ.get("SQL_USER",'postgres_user'),
+        'PASSWORD': os.environ.get("SQL_PASSWORD",'nitro'),
+        'HOST': os.environ.get("SQL_HOST",'db_fitnes'),
+        'PORT': os.environ.get("SQL_PORT",5432),
     }
 }
 
@@ -130,7 +136,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+AUTH_USER_MODEL = 'user.CustomUser'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# eamil, twillio, google here ------------------------------------------------
