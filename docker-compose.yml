@@ -1,6 +1,5 @@
 version: '3.9'
 
-
 services:
   
   redis-fitnes:
@@ -16,7 +15,7 @@ services:
       - 8010:8010
     depends_on:
       - db_fitnes
-  
+    
   # celery-worker:
   #   build: .
   #   command: celery -A Parking worker -l INFO
@@ -26,15 +25,27 @@ services:
   #   restart: always
   #   depends_on:
   #     - redis-fitnes
+      
+  telegram-bot:
+    build:
+      context: ./telegram  # Path to the directory where your bot code (bot.py) resides
+      dockerfile: Dockerfile
+    environment:
+      - TELEGRAM_TOKEN=7866665708:AAHxg1medDESQqiPtJGOwTE-ZZ8utoPvyyI  # Your bot's token
+    restart: always
+    volumes:
+      - ./telegram:/app  # Mount your local bot directory to allow live updates (optional)
+    depends_on:
+      - redis-fitnes  # Optional: If your bot needs to rely on other services like Redis
 
   db_fitnes:
     image: postgres:16.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=new_fitnes
-      - POSTGRES_USER=postgres_user
-      - POSTGRES_PASSWORD=nitro
+      - POSTGRES_DB=fitnes_io
+      - POSTGRES_USER=fitnes_io_dev_user
+      - POSTGRES_PASSWORD=fitnes_io_dev_user_password
 
 volumes:
   postgres_data:

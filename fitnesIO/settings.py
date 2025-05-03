@@ -39,13 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user',
-    'routine',
-    'parler',
     'rest_framework',
     'ai_model',
+    'routine',
+    'user',
     'utils',
-    'rest_framework_simplejwt',
+    'parler',
+    'drf_yasg',
+    'myapp',
+    'rest_framework.authtoken',
+    'googleauth',
+    'rest_framework_simplejwt'
+    'telegram',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -90,7 +95,7 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR,'templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,15 +109,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fitnesIO.wsgi.application'
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 load_dotenv() 
 # Database
@@ -179,7 +184,26 @@ STATIC_ROOT = 'satic_root/'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = 'media/'
 
+AUTH_USER_MODEL = 'user.CustomUser'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # SMTP Server configuration
+EMAIL_HOST = 'smtp.gmail.com'  # Change to your provider's SMTP server
+EMAIL_PORT = 587  # Use 465 for SSL
+EMAIL_USE_TLS = True  # Set to False if you're using SSL
+EMAIL_HOST_USER = 'mirjalolzokirov9.05@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'REMOVED_EMAIL_PASSWORD'  # Your email password or app password
+EMAIL_HOST_NAME = 'FITNESSIO'
+DEFAULT_FROM_EMAIL = f"FITNESSIO <{EMAIL_HOST_USER}>"
+
+TWILIO_ACCOUNT_SID = 'REMOVED_TWILIO_SID'
+TWILIO_AUTH_TOKEN = 'REMOVED_TWILIO_TOKEN'
+TWILIO_PHONE_NUMBER = '+1 787 482 3824'
+
+GOOGLE_CLIENT_ID = 'REMOVED_GOOGLE_CLIENT_ID'
+GOOGLE_CLIENT_SECRET = 'REMOVED_GOOGLE_CLIENT_SECRET'
+GOOGLE_REDIRECT_URI = 'http://localhost:8010/auth/google/callback/'

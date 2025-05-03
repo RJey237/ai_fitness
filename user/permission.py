@@ -9,3 +9,4 @@ class IsOwner(permissions.BasePermission):
             return request.user.user_type == 'owner'
         
         return False
+    

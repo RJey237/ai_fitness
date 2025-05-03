@@ -1,4 +1,4 @@
-from .models import CustomUser
+from .models import CustomUser,Bmi
 from rest_framework import serializers
 import phonenumbers
 from utils.exceptions import BaseApiException
@@ -61,5 +61,10 @@ class VerifySerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields= ['first_name','last_name','phone','email_verified','is_verified']
-    
+        fields = ['id',"first_name",'last_name','phone','user_type','car_number','email_verified','is_verified']
+        
+
+class BmiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bmi
+        fields = ['height', 'weight', 'gender', 'birth_date']

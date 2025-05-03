@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Your Fitness Plan is Ready</title>
+    <style>
+      .container {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+      }
+      .header {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+      }
+      .body {
+        padding: 20px;
+        color: #333;
+        line-height: 1.6;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #888;
+        text-align: center;
+      }
+      .button {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 12px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>🎯 Your {{ plan_type|capfirst }} Fitness Plan is Ready!</h2>
+      </div>
+      <div class="body">
+        <p>Hi {{ user_first_name }},</p>
+        <p>
+          Your new {{ plan_type }} fitness and nutrition plan has been successfully generated.
+        </p>
+        <p>
+          Click below to log in and view your personalized schedule:
+        </p>
+        <p style="text-align: center;">
+          <a class="button" href="{{ login_url }}">View My Plan</a>
+        </p>
+        <p>
+          Stay strong 💪,<br />
+          The Fitnesio Team
+        </p>
+      </div>
+      <div class="footer">
+        © 2025 Fitnesio. All rights reserved.
+      </div>
+    </div>
+  </body>
+</html>
