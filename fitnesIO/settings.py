@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 import os
+AUTH_USER_MODEL = 'user.CustomUser'
 from dotenv import load_dotenv
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,8 +43,28 @@ INSTALLED_APPS = [
     'routine',
     'parler',
     'rest_framework',
-
+    'ai_model',
+    'utils',
+    'rest_framework_simplejwt',
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', # Default to requiring auth
+    )
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Access token expires in 30 minutes
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh token expires in 7 days
+    'ROTATE_REFRESH_TOKENS': True,                   # Issue a new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': True,                # Blacklist old refresh tokens         # Set a custom secret key if needed
+    'AUTH_HEADER_TYPES': ('Bearer',),                # Default token type in headers
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,7 +76,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'fitnesIO.urls'
+
+
+CELERY_BROKER_URL = f'redis://redis-test:6379/0'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'default'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 
 TEMPLATES = [
     {
@@ -90,17 +119,20 @@ load_dotenv()
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/chat/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get("SQL_ENGINE"),
-        'NAME': os.environ.get("SQL_DATABASE"),
-        'USER': os.environ.get("SQL_USER"),
-        'PASSWORD': os.environ.get("SQL_PASSWORD"),
-        'HOST': os.environ.get("SQL_HOST"),
-        'PORT': os.environ.get("SQL_PORT"),
+        'ENGINE': os.environ.get("SQL_ENGINE","django.db.backends.postgresql"),
+        'NAME': os.environ.get("SQL_DATABASE","fitnes_io"),
+        'USER': os.environ.get("SQL_USER","fitnes_io_dev_user"),
+        'PASSWORD': os.environ.get("SQL_PASSWORD","fitnes_io_dev_user_password"),
+        'HOST': os.environ.get("SQL_HOST","db_fitnes"),
+        'PORT': os.environ.get("SQL_PORT","5432"),
     }
 }
+
 
 
 # Password validation
@@ -137,7 +169,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'satic_root/'
+STATIC_ROOT = 'satic_root/'
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR,'static')
+# ]
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

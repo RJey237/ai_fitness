@@ -3,84 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Fitness Routine</title>
+    <title>Your Fitness Routine - {{ routine.id }}</title>
+
+    {# Bootstrap CSS Link #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    {# Optional: Font Awesome for icons #}
+    {# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/> #}
+
     <style>
-        /* ... (keep existing styles) ... */
+        body {
+            padding-top: 20px;
+            padding-bottom: 60px;
+            background-color: #f8f9fa; /* Light background */
+        }
+        .routine-description {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .day-card {
+            margin-bottom: 1.5rem; /* Space between day cards */
+        }
+        .card-header {
+            background-color: #e9ecef; /* Lighter header */
+            font-weight: bold;
+        }
+        .exercise-list, .diet-details {
+            margin-top: 0.5rem;
+        }
+        .exercise-list li {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee; /* Separator for exercises */
+        }
+         .exercise-list li:last-child {
+            border-bottom: none;
+        }
+        .exercise-name {
+            font-weight: 500; /* Medium weight for exercise name */
+        }
+        .calories-badge {
+            font-size: 0.9em;
+        }
+        .back-links {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Your Weekly Fitness Plan</h1>
 
         {% if routine %}
             <div class="routine-description">
+                <h1 class="display-6 mb-3">Your Weekly Fitness Plan</h1>
                 <p><strong>Overall Goal:</strong></p>
                 <p>{{ routine.description|linebreaksbr }}</p>
-                <p><small>Routine Start Date: {{ routine.start_date }}</small></p>
+                <p class="text-muted"><small>Routine Start Date: {{ routine.start_date|date:"F j, Y" }}</small></p>
             </div>
+            <hr>
 
-            {% comment %} Loop through the days list prepared in the view {% endcomment %}
-            {% for day in days_to_display %}  {# USE days_to_display NOW #}
-                <div class="day-card">
-                    <div class="day-header">
-                        {% comment %} Directly access the name added in the view {% endcomment %}
-                        <h3>{{ day.name_of_day }}</h3> {# ACCESS the new attribute #}
-                        <span class="date">{{ day.week_date|date:"Y-m-d" }}</span>
+            {# Loop through the days list prepared in the view #}
+            {% for day in days_to_display %}
+                <div class="card day-card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0">{{ day.name_of_day }}</h3> {# Access the new attribute #}
+                        <span class="badge bg-secondary rounded-pill">{{ day.week_date|date:"Y-m-d" }}</span>
                     </div>
 
-                    {% comment %} Workout Section {% endcomment %}
-                    <div class="workout-section">
-                        <h4>Workout</h4>
-                        {% with exercises=day.dailyexercises_set.all %}
-                            {% if exercises %}
-                                <ul>
-                                    {% for exercise in exercises %}
-                                    <li>
-                                        <span class="exercise-name">{{ exercise.name }}:</span>
-                                        <span class="exercise-details">
-                                            {{ exercise.sets }} set{{ exercise.sets|pluralize }}
-                                            {% if exercise.reps == -1 %}
-                                                (AMRAP) {# Simpler AMRAP display #}
-                                            {% elif exercise.reps > 0 %}
-                                                 x {{ exercise.reps }} rep{{ exercise.reps|pluralize }}
-                                            {% endif %}
-                                            {% if exercise.description %} - {{ exercise.description }}{% endif %}
-                                            {% if exercise.duration > 0 %} ({{ exercise.duration }} mins){% endif %}
-                                        </span>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p class="no-data">Rest Day or No Workout Scheduled.</p>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
+                    <div class="card-body">
+                        <div class="row"> {# Use row/col for potential side-by-side layout #}
 
-                    {% comment %} Diet Section {% endcomment %}
-                    <div class="diet-section">
-                        <h4>Diet</h4>
-                        {% with food_plan=day.dailyfood_set.first %}
-                            {% if food_plan %}
-                                <p class="diet-details">{{ food_plan.description|linebreaksbr }}</p>
-                                <p><span class="calories">Target Calories: ~{{ food_plan.callory|floatformat:0 }} kcal</span></p>
-                            {% else %}
-                                <p class="no-data">No Specific Diet Plan Provided.</p>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
+                            {# Workout Section #}
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <h4 class="h6"><i class="fas fa-dumbbell"></i> Workout</h4> {# Optional icon #}
+                                {% with exercises=day.dailyexercises_set.all %}
+                                    {% if exercises %}
+                                        <ul class="list-unstyled exercise-list">
+                                            {% for exercise in exercises %}
+                                            <li>
+                                                <span class="exercise-name">{{ exercise.name }}</span><br>
+                                                <small class="text-muted exercise-details">
+                                                    {{ exercise.sets }} set{{ exercise.sets|pluralize }}
+                                                    {% if exercise.reps == -1 %}
+                                                        (AMRAP) {# Simpler AMRAP display #}
+                                                    {% elif exercise.reps > 0 %}
+                                                         x {{ exercise.reps }} rep{{ exercise.reps|pluralize }}
+                                                    {% endif %}
+                                                    {% if exercise.duration > 0 %}
+                                                        {% if exercise.reps > 0 or exercise.sets > 0 %} / {% endif %} {# Separator if other metrics exist #}
+                                                         {{ exercise.duration }}
+                                                         {% comment %} Infer unit from description or assume seconds/minutes based on context? Let's assume seconds/minutes might be in description {% endcomment %}
+                                                         {% if 'minute' in exercise.description|lower %} min{{ exercise.duration|pluralize }} {% elif 'second' in exercise.description|lower %} sec{{ exercise.duration|pluralize }} {% endif %}
+                                                    {% endif %}
+                                                </small>
+                                                {% if exercise.description %}
+                                                   <p class="mb-0 mt-1" style="font-size: 0.9em;"><em>{{ exercise.description }}</em></p>
+                                                {% endif %}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-muted fst-italic mt-2">Rest Day or No Workout Scheduled.</p>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+
+                            {# Diet Section #}
+                            <div class="col-md-6">
+                                <h4 class="h6"><i class="fas fa-utensils"></i> Diet</h4> {# Optional icon #}
+                                {% with food_plan=day.dailyfood_set.first %}
+                                    {% if food_plan %}
+                                        <p class="diet-details mb-2">{{ food_plan.description|linebreaksbr }}</p>
+                                        <p><span class="badge bg-success calories-badge">Target Calories: ~{{ food_plan.callory|floatformat:0 }} kcal</span></p>
+                                    {% else %}
+                                        <p class="text-muted fst-italic mt-2">No Specific Diet Plan Provided.</p>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div> {# End row #}
+                    </div> {# End card-body #}
                 </div> {# End day-card #}
             {% empty %}
-                <p>This routine doesn't have any days planned yet.</p>
+                <div class="alert alert-warning" role="alert">
+                    This routine doesn't have any days planned yet.
+                </div>
             {% endfor %}
 
         {% else %}
-            <p>Routine not found.</p>
+            <div class="alert alert-danger" role="alert">
+                Routine not found.
+            </div>
         {% endif %}
 
-        <div class="back-link">
-            <a href="{% url 'chat' %}">Generate a New Routine</a>
-            {# <a href="{% url 'routine_list' %}">Back to My Routines</a> #}
+        <div class="back-links text-center">
+            <a href="{% url 'chat' %}" class="btn btn-primary me-2">Generate a New Routine</a>
+            <a href="{% url 'routine_list_delete' %}" class="btn btn-secondary">Back to My Routines</a>
         </div>
-    </div>
+    </div> {# End container #}
+
+    {# Bootstrap JS Bundle #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
 </body>
 </html>
