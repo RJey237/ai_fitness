@@ -438,7 +438,6 @@ class RoutineViewSet(viewsets.ModelViewSet):
     """
     serializer_class = RoutineSerializer
     permission_classes = [IsAuthenticated] # Ensures only token-authenticated users can access
-
     def get_queryset(self):
         """ Returns routines belonging ONLY to the requesting (token-authenticated) user. """
         user = self.request.user # DRF/JWTAuthentication provides the user associated with the token
