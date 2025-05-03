@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'routine',
     'user',
     'utils',
+    'telegram',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
