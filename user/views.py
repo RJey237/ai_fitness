@@ -5,9 +5,15 @@ from .serializers import RegisterSerializer,VerifySerializer,UserProfileSerializ
 from rest_framework import status
 from rest_framework.response import Response
 from .models import CustomUser
+<<<<<<< HEAD
 from .models import Bmi
 
 import datetime
+=======
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+
+>>>>>>> javlon
 
 class RegisterView(ViewSet):
     
@@ -43,6 +49,7 @@ class ProfileViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+<<<<<<< HEAD
 class CalculateCaloriesView(ViewSet):
     
     def create(self, request, *args, **kwargs):
@@ -81,3 +88,35 @@ class CalculateCaloriesView(ViewSet):
 
         except Bmi.DoesNotExist:
             return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+=======
+
+# user/views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import login # To log the user in after registration
+from django.contrib import messages
+from .forms import RegistrationForm
+
+def register_view(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save() # Save the user, UserCreationForm handles hashing
+            login(request, user) # Log the user in automatically
+            messages.success(request, "Registration successful! You are now logged in.")
+            # Redirect to the same place as successful login
+            # Or use: return redirect('some_other_page_name')
+            return redirect('chat') # Redirect to chat view (adjust name if needed)
+        else:
+            # Form is invalid, add error messages if desired (form rendering handles field errors)
+            messages.error(request, "Please correct the errors below.")
+    else: # GET request
+        form = RegistrationForm()
+
+    context = {'form': form}
+    return render(request, 'register.html', context) # Use a template within the user app
+
+
+def log_out(request):
+    return redirect('login')
+
+>>>>>>> javlon

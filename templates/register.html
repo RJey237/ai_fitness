@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto;}
+        .errorlist { color: red; list-style: none; padding: 0; margin: 5px 0 10px 0; font-size: 0.9em; }
+        label { display: block; margin-top: 15px; margin-bottom: 3px; font-weight: bold;}
+        input[type=text], input[type=email], input[type=password] {
+            width: 100%; /* Make inputs fill container */
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+        button {
+            padding: 12px 20px;
+            margin-top: 25px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 100%; /* Full width button */
+            font-size: 1.1em;
+        }
+        button:hover { background-color: #45a049; }
+        .helptext { font-size: 0.85em; color: #666; margin-top: 5px; margin-bottom: 5px; line-height: 1.4; }
+        .messages { list-style: none; padding: 0; margin: 0 0 15px 0; }
+        .messages li { padding: 10px; border-radius: 4px; margin-bottom: 10px; border: 1px solid transparent; }
+        .messages li.error { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        .messages li.success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+        .form-field-block { margin-bottom: 15px; } /* Add space between fields */
+    </style>
+</head>
+<body>
+    <h2>Create Account</h2>
+
+    {# Display Django messages (like success/error messages from the view) #}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %} {# IMPORTANT: Security token #}
+
+         {# Display non-field errors (like password mismatch) #}
+        {% if form.non_field_errors %}
+            <div class="errorlist non-field-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        <div class="form-field-block">
+            <label for="{{ form.username.id_for_label }}">{{ form.username.label }}:</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+               <ul class="errorlist">
+                   {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+               </ul>
+             {% endif %}
+            {% if form.username.help_text %}
+                <p class="helptext">{{ form.username.help_text|safe }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-field-block">
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}:</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+               <ul class="errorlist">
+                   {% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}
+               </ul>
+             {% endif %}
+            {% if form.email.help_text %}
+                <p class="helptext">{{ form.email.help_text|safe }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-field-block">
+            {# Consistently use password1 #}
+            <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}:</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+               <ul class="errorlist">
+                   {% for error in form.password1.errors %}<li>{{ error }}</li>{% endfor %}
+               </ul>
+             {% endif %}
+             {% if form.password1.help_text %}
+                {# Display the specific help text defined for password1 #}
+                <p class="helptext">{{ form.password1.help_text|safe }}</p>
+            {% endif %}
+        </div>
+
+         <div class="form-field-block">
+            {# Consistently use password2 #}
+            <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}:</label>
+            {{ form.password2 }}
+             {% if form.password2.errors %}
+               <ul class="errorlist">
+                   {% for error in form.password2.errors %}<li>{{ error }}</li>{% endfor %}
+               </ul>
+             {% endif %}
+             {% if form.password2.help_text %}
+                <p class="helptext">{{ form.password2.help_text|safe }}</p>
+            {% endif %}
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p style="margin-top: 20px; text-align: center;">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+
+</body>
+</html>

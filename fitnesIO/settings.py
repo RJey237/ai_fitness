@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 AUTH_USER_MODEL = 'user.CustomUser'
 from dotenv import load_dotenv
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -50,10 +49,14 @@ INSTALLED_APPS = [
     'myapp',
     'rest_framework.authtoken',
     'googleauth',
+    'rest_framework_simplejwt'
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', # Default to requiring auth
     )
 }
 
@@ -120,6 +123,8 @@ load_dotenv()
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/chat/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 DATABASES = {
     'default': {

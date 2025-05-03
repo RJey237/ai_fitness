@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <!-- Add your CSS links here if desired -->
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .errorlist { color: red; list-style: none; padding: 0; margin: 5px 0; }
+        label { display: block; margin-top: 10px; }
+        input[type=text], input[type=password] { width: 250px; padding: 8px; margin-top: 5px; }
+        button { padding: 10px 15px; margin-top: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Login</h2>
+
+    {% if form.errors %}
+        <p style="color: red;">Your username and password didn't match. Please try again.</p>
+    {% endif %}
+
+    {% if next %}
+        {% if user.is_authenticated %}
+        <p>Your account doesn't have access to this page. To proceed,
+        please login with an account that has access.</p>
+        {% else %}
+        <p>Please login to see this page.</p>
+        {% endif %}
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %} {# IMPORTANT: Security token #}
+
+        <div>
+            <label for="id_username">Username:</label>
+            {{ form.username }}
+             {% if form.username.errors %}
+               <ul class="errorlist">
+                   {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+               </ul>
+             {% endif %}
+        </div>
+        <div>
+            <label for="id_password">Password:</label>
+            {{ form.password }}
+             {% if form.password.errors %}
+               <ul class="errorlist">
+                   {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
+               </ul>
+             {% endif %}
+        </div>
+
+         {# If you want to redirect to a specific page after login #}
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button type="submit">Login</button>
+    </form>
+
+    {# Optional: Add password reset link if configured #}
+    {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
+     {# Optional: Add registration link #}
+    <p>Don't have an account? <a href="{% url 'register' %}">Sign up</a></p> 
+
+</body>
+</html>
