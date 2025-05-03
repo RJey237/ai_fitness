@@ -17,9 +17,6 @@ services:
     depends_on:
       - db_fitnes
     
-    # env_file:
-    #   - .env
-  
   # celery-worker:
   #   build: .
   #   command: celery -A Parking worker -l INFO

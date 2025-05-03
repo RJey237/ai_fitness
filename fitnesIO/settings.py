@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'utils',
     'parler',
     'drf_yasg',
-
+    'myapp',
     'rest_framework.authtoken',
     'googleauth',
 ]
@@ -105,15 +105,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fitnesIO.wsgi.application'
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 load_dotenv() 
 # Database
