@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--=k3ztr+xgx1ap5&a+@-grdk%p+fqe_itr_8+y@8no582!%e-8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'myapp',
     'rest_framework.authtoken',
     'googleauth',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
     'telegram',
 ]
 REST_FRAMEWORK = {
@@ -57,7 +57,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated', # Default to requiring auth
+        'rest_framework.permissions.AllowAny', # Default to requiring auth
     )
 }
 

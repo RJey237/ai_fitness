@@ -5,15 +5,12 @@ from .serializers import RegisterSerializer,VerifySerializer,UserProfileSerializ
 from rest_framework import status
 from rest_framework.response import Response
 from .models import CustomUser
-<<<<<<< HEAD
 from .models import Bmi
 
 import datetime
-=======
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 
->>>>>>> javlon
 
 class RegisterView(ViewSet):
     
@@ -49,7 +46,6 @@ class ProfileViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-<<<<<<< HEAD
 class CalculateCaloriesView(ViewSet):
     
     def create(self, request, *args, **kwargs):
@@ -88,7 +84,6 @@ class CalculateCaloriesView(ViewSet):
 
         except Bmi.DoesNotExist:
             return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
-=======
 
 # user/views.py
 from django.shortcuts import render, redirect
@@ -119,4 +114,3 @@ def register_view(request):
 def log_out(request):
     return redirect('login')
 
->>>>>>> javlon

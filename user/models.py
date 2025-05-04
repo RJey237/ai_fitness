@@ -8,10 +8,8 @@ from utils.models import ModelWithTimeStamp
 class CustomUser(AbstractUser, ModelWithTimeStamp):
 
     phone = models.CharField(verbose_name=_("phone"), max_length=20, blank=True, null=True)
-<<<<<<< HEAD
-    profile_image = models.ImageField(upload_to="profile image")
+
     is_verified = models.BooleanField(default=False)
-=======
     profile_image = models.ImageField(upload_to="profile_image/", blank=True, null=True) 
     user_permissions=models.ManyToManyField( "auth.Permission",verbose_name=_("user permissions"),blank=True, help_text=_("Specific permissions for this user."),related_name="customuser_permissions",related_query_name="customuser",)
     groups = models.ManyToManyField(
@@ -25,13 +23,19 @@ class CustomUser(AbstractUser, ModelWithTimeStamp):
         related_name="customuser_groups",  
         related_query_name="customuser",
     )
->>>>>>> javlon
     
     @property
     def verify_email(self):
         self.email_verified = True
         self.save()
-
+        
+    @property
+    def imageURL(self):
+        if self.profile_image:
+            return self.profile_image.url
+        else:
+            return ''
+    
 class Bmi(models.Model):
     class Gender(models.TextChoices):
         MAN = 'man', 'male'
@@ -45,7 +49,4 @@ class Bmi(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
-<<<<<<< HEAD
-=======
 
->>>>>>> javlon

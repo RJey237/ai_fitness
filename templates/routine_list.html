@@ -5,19 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Routines</title>
 
-    {# Bootstrap CSS Link moved into head #}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <style> body { padding-bottom: 60px; } </style>
+    <style>
+        body {
+            padding-bottom: 60px;
+            background-color: #f9f9f9;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .routine-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            padding: 15px 20px;
+        }
+
+        .routine-actions .btn {
+            margin-left: 10px;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border: none;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="container mt-4">
+    <div class="container mt-5">
 
-        {# Use user.username from context #}
-        <h2>Routines for {{ user.username }}</h2>
-        <hr>
+        <h2 class="mb-3">Routines for <span class="text-primary">{{ user.username }}</span></h2>
+        <hr class="mb-4">
 
-        {# Display Django messages #}
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -27,53 +54,44 @@
             {% endfor %}
         {% endif %}
 
-        {# Display error if user determination failed (less likely with @login_required) #}
         {% if error_message %}
             <div class="alert alert-danger" role="alert">
                 Error: {{ error_message }}
             </div>
         {% endif %}
 
-        {# Display routines if a user was found and authenticated #}
-        {% if user and user.is_authenticated %} {# Use the user object from context #}
+        {% if user and user.is_authenticated %}
             {% if routines %}
-                <ul class="list-group">
-                    {% for routine in routines %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>ID: {{ routine.id }}</strong> - Started: {{ routine.start_date|date:"Y-m-d" }} {# Added date format #}
-                                <p><small>{{ routine.description|truncatewords:20 }}</small></p>
-                                {# Link to detail view #}
-                                <a href="{% url 'routine_detail' routine.id %}" class="btn btn-sm btn-info">View Details</a>
-                            </div>
-                            <div>
-                                {# Deletion Form #}
-                                <form method="post" action="{% url 'routine_list_delete' %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete routine {{ routine.id }}?');">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="routine_id" value="{{ routine.id }}">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% for routine in routines %}
+                    <div class="routine-card d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Routine #{{ routine.id }}</h5>
+                            <p class="mb-1 text-muted">Started on: {{ routine.start_date|date:"Y-m-d" }}</p>
+                            <p class="mb-2"><small>{{ routine.description|truncatewords:20 }}</small></p>
+                            <a href="{% url 'routine_detail' routine.id %}" class="btn btn-sm btn-info">View Details</a>
+                        </div>
+                        <div class="routine-actions">
+                            <form method="post" action="{% url 'routine_list_delete' %}" onsubmit="return confirm('Are you sure you want to delete routine {{ routine.id }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="routine_id" value="{{ routine.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
             {% else %}
-                <div class="alert alert-info" role="alert">
-                    No routines found for this user. <a href="{% url 'chat' %}">Generate one?</a>
+                <div class="alert alert-info text-center" role="alert">
+                    No routines found. <a href="{% url 'chat' %}" class="alert-link">Generate one now!</a>
                 </div>
             {% endif %}
-        {% endif %} {# End check for authenticated user #}
+        {% endif %}
 
-        <div class="mt-3">
-            <a href="{% url 'chat' %}" class="btn btn-primary">Generate New Routine</a>
-            {# Optionally link to where users can use the API if applicable #}
-            {# <a href="/api/docs/" class="btn btn-secondary">API Usage</a> #}
+        <div class="mt-4 text-center">
+            <a href="{% url 'chat' %}" class="btn btn-primary px-4">Generate New Routine</a>
         </div>
 
     </div>
 
-    {# Bootstrap JS #}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-
 </body>
 </html>

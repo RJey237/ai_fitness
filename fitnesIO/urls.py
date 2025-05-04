@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include,reverse_lazy
 from django.contrib import admin
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
-
+from django.views.generic import RedirectView
 schema_view = get_schema_view(
     openapi.Info(
         title="My API",
@@ -17,15 +17,18 @@ schema_view = get_schema_view(
         license=openapi.License(name="MIT License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=(permissions.AllowAny,)
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include('googleauth.api')),
-    path('api/v1/', include('user.api')),
-    path('api/v1/', include('utils.api')),
-    path('api/v1/', include('ai_model.urls')),
+    path('', RedirectView.as_view(url=reverse_lazy('login'), permanent=False)),
+    path('', include('googleauth.api')),
+    path('', include('user.api')),
+    path('', include('utils.api')),
+    path('', include('ai_model.urls')),
+    path('', include('user.urls')),
+    path('', include('django.contrib.auth.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

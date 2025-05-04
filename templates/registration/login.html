@@ -1,64 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Login</title>
-    <!-- Add your CSS links here if desired -->
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .errorlist { color: red; list-style: none; padding: 0; margin: 5px 0; }
-        label { display: block; margin-top: 10px; }
-        input[type=text], input[type=password] { width: 250px; padding: 8px; margin-top: 5px; }
-        button { padding: 10px 15px; margin-top: 15px; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.2s;
+        }
+
+        input[type=text]:focus,
+        input[type=password]:focus {
+            border-color: #4285F4;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .errorlist {
+            color: red;
+            list-style: none;
+            padding: 0;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .info {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+        }
+
+        .signup-options {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .or-divider {
+            margin: 10px 0;
+            color: #aaa;
+            position: relative;
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .or-divider::before {
+            left: 0;
+        }
+
+        .or-divider::after {
+            right: 0;
+        }
+
+        .google-signup-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #4285F4;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .google-signup-button:hover {
+            background-color: #357ae8;
+        }
     </style>
 </head>
 <body>
-    <h2>Login</h2>
+    <div class="login-container">
+        <h2>Login</h2>
 
-    {% if form.errors %}
-        <p style="color: red;">Your username and password didn't match. Please try again.</p>
-    {% endif %}
-
-    {% if next %}
-        {% if user.is_authenticated %}
-        <p>Your account doesn't have access to this page. To proceed,
-        please login with an account that has access.</p>
-        {% else %}
-        <p>Please login to see this page.</p>
+        {% if form.errors %}
+            <p style="color: red; text-align: center;">Your username and password didn't match. Please try again.</p>
         {% endif %}
-    {% endif %}
 
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %} {# IMPORTANT: Security token #}
+        {% if next %}
+            <div class="info">
+                {% if user.is_authenticated %}
+                    Your account doesn't have access to this page. Please login with a different account.
+                {% else %}
+                    Please login to see this page.
+                {% endif %}
+            </div>
+        {% endif %}
 
-        <div>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
             <label for="id_username">Username:</label>
             {{ form.username }}
-             {% if form.username.errors %}
-               <ul class="errorlist">
-                   {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
-               </ul>
-             {% endif %}
-        </div>
-        <div>
+            {% if form.username.errors %}
+                <ul class="errorlist">
+                    {% for error in form.username.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
             <label for="id_password">Password:</label>
             {{ form.password }}
-             {% if form.password.errors %}
-               <ul class="errorlist">
-                   {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
-               </ul>
-             {% endif %}
+            {% if form.password.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="signup-options">
+            <p>Don't have an account? <a href="{% url 'register' %}">Sign up</a></p>
+            <p class="or-divider">OR</p>
+            <a href="{% url 'google-login' %}" class="google-signup-button">Sign in with Google</a>
         </div>
-
-         {# If you want to redirect to a specific page after login #}
-        <input type="hidden" name="next" value="{{ next }}">
-
-        <button type="submit">Login</button>
-    </form>
-
-    {# Optional: Add password reset link if configured #}
-    {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
-     {# Optional: Add registration link #}
-    <p>Don't have an account? <a href="{% url 'register' %}">Sign up</a></p> 
-
+    </div>
 </body>
 </html>
