@@ -11,24 +11,32 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-import os
-AUTH_USER_MODEL = 'user.CustomUser'
-from dotenv import load_dotenv
+import os  # Import os
+from dotenv import load_dotenv # Import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# --- Load .env file ---
+# Place this near the top, before variables are accessed
+load_dotenv(dotenv_path=BASE_DIR / '.env')
+# --- End Load .env file ---
+
+AUTH_USER_MODEL = 'user.CustomUser'
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--=k3ztr+xgx1ap5&a+@-grdk%p+fqe_itr_8+y@8no582!%e-8'
+# --- Load SECRET_KEY from environment ---
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure--=k3ztr+xgx1ap5&a+@-grdk%p+fqe_itr_8+y@8no582!%e-8') # Provide default only for dev
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# --- Load DEBUG from environment ---
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true' # Default to False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["*"] # Keep this as is, configure manually or via env var separately if needed
 
 
 # Application definition
@@ -52,25 +60,29 @@ INSTALLED_APPS = [
     'googleauth',
     'rest_framework_simplejwt',
     'telegram',
+    # Add these if you are using Celery with DB results/beat scheduler
+    'django_celery_results',
+    'django_celery_beat',
 ]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny', # Default to requiring auth
+        'rest_framework.permissions.AllowAny',
     )
 }
 
-
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Access token expires in 30 minutes
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh token expires in 7 days
-    'ROTATE_REFRESH_TOKENS': True,                   # Issue a new refresh token on refresh
-    'BLACKLIST_AFTER_ROTATION': True,                # Blacklist old refresh tokens         # Set a custom secret key if needed
-    'AUTH_HEADER_TYPES': ('Bearer',),                # Default token type in headers
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+     # Use the SECRET_KEY loaded from env or the default
+    'SIGNING_KEY': SECRET_KEY,
 }
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,16 +94,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 ROOT_URLCONF = 'fitnesIO.urls'
 
+# --- Load Redis Host from Environment for Celery ---
+REDIS_HOST = os.environ.get('REDIS_HOST', 'redis-test') # Default to 'redis-test' if not in .env
 
-CELERY_BROKER_URL = f'redis://redis-test:6379/0'
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:6379/0'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'default'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
+CELERY_RESULT_BACKEND = 'django-db' # Keep as is, requires django-celery-results
+CELERY_CACHE_BACKEND = 'default' # Uses the 'default' cache defined below
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler' # Keep as is, requires django-celery-beat
 
 TEMPLATES = [
     {
@@ -110,17 +122,23 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fitnesIO.wsgi.application'
+
+# --- Load Redis Host from Environment for Cache ---
+# Use the same REDIS_HOST loaded above
+CACHE_REDIS_HOST = os.environ.get('REDIS_HOST', 'redis-fitnes') # Default to 'redis-fitnes' if not in .env for cache
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis-fitnes:6379/1",  # Use DB 1 for caching
+        "LOCATION": f"redis://{CACHE_REDIS_HOST}:6379/1",  # Use DB 1 for caching
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # Add password from env if needed:
+            # "PASSWORD": os.environ.get("REDIS_PASSWORD"),
         }
     }
 }
 
-load_dotenv() 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -128,83 +146,79 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/chat/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
+# --- Load Database Credentials from Environment ---
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get("SQL_ENGINE","django.db.backends.postgresql"),
-        'NAME': os.environ.get("SQL_DATABASE","fitnes_io"),
-        'USER': os.environ.get("SQL_USER","fitnes_io_dev_user"),
-        'PASSWORD': os.environ.get("SQL_PASSWORD","fitnes_io_dev_user_password"),
-        'HOST': os.environ.get("SQL_HOST","db_fitnes"),
-        'PORT': os.environ.get("SQL_PORT","5432"),
+        # Keep original ENGINE or load from env if needed:
+        # 'ENGINE': os.environ.get("SQL_ENGINE", 'django.db.backends.postgresql'),
+        'ENGINE': 'django.db.backends.postgresql', # Assuming this was your original intention
+        'NAME': os.environ.get("SQL_DATABASE"),
+        'USER': os.environ.get("SQL_USER"),
+        'PASSWORD': os.environ.get("SQL_PASSWORD"), # Load password
+        'HOST': os.environ.get("SQL_HOST"),
+        'PORT': os.environ.get("SQL_PORT", 5432), # Load port, default 5432
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'satic_root/'
-STATIC_ROOT = 'satic_root/'
+STATIC_URL = 'static/' # Corrected from 'satic_root/' - adjust if 'satic_root/' was intended
+STATIC_ROOT = BASE_DIR / 'staticfiles' # Using a standard name, adjust if needed
 
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR,'static')
 # ]
 
 MEDIA_URL = 'media/'
-MEDIA_ROOT = 'media/'
-
-AUTH_USER_MODEL = 'user.CustomUser'
+MEDIA_ROOT = BASE_DIR / 'media/' # Keep original 'media/' path
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # SMTP Server configuration
-EMAIL_HOST = 'smtp.gmail.com'  # Change to your provider's SMTP server
-EMAIL_PORT = 587  # Use 465 for SSL
-EMAIL_USE_TLS = True  # Set to False if you're using SSL
-EMAIL_HOST_USER = 'mirjalolzokirov9.05@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'REMOVED_EMAIL_PASSWORD'  # Your email password or app password
-EMAIL_HOST_NAME = 'FITNESSIO'
-DEFAULT_FROM_EMAIL = f"FITNESSIO <{EMAIL_HOST_USER}>"
 
-TWILIO_ACCOUNT_SID = 'REMOVED_TWILIO_SID'
-TWILIO_AUTH_TOKEN = 'REMOVED_TWILIO_TOKEN'
-TWILIO_PHONE_NUMBER = '+1 787 482 3824'
+# --- Load Email Credentials from Environment ---
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' # Keep as is unless you want it configurable
+EMAIL_PORT = 587 # Keep as is unless you want it configurable
+EMAIL_USE_TLS = True # Keep as is unless you want it configurable
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') # Load user
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD') # Load password
+EMAIL_HOST_NAME = os.environ.get('EMAIL_HOST_NAME', 'FITNESSIO') # Load optional name or default
+DEFAULT_FROM_EMAIL = f"{EMAIL_HOST_NAME} <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else f"{EMAIL_HOST_NAME} <noreply@example.com>" # Construct safely
 
-GOOGLE_CLIENT_ID = 'REMOVED_GOOGLE_CLIENT_ID'
-GOOGLE_CLIENT_SECRET = 'REMOVED_GOOGLE_CLIENT_SECRET'
-GOOGLE_REDIRECT_URI = 'http://localhost:8010/auth/google/callback/'
+# --- Load Twilio Credentials from Environment ---
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
+
+# --- Load Google Credentials from Environment ---
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI')
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') # Load separate API key if used
+
+# --- Django Parler settings (Keep original, example) ---
+# PARLER_LANGUAGES = { ... }
+
+# --- DRF Yasg settings (Keep original, example) ---
+# SWAGGER_SETTINGS = { ... }

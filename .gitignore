@@ -119,3 +119,26 @@ coverage.xml
 *.cover
 *.py,cover
 .cache
+
+
+
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Other common Django ignores
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+media/
+static_root/ # Or your STATIC_ROOT directory if different
+
+# Service account keys / Sensitive files
+utils/key.json # Example if you still have this type of file pattern
+*.json # Be careful with generic patterns, but often good for keys
+*.pem
