@@ -58,7 +58,7 @@ class DailyExercises(TranslatableModel):
     duration = models.IntegerField()
     sets = models.IntegerField()
     reps = models.IntegerField()
-
+    status=models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} - {self.sets} sets - {self.reps}"

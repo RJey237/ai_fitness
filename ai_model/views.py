@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.conf import settings
 import traceback
 from rest_framework import viewsets, status
+from rest_framework.views import APIView 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated # For API token auth
 from django.contrib.auth.decorators import login_required # For HTML view session auth
@@ -21,6 +22,7 @@ from django.contrib import messages
 from .serializers import (
     RoutineSerializer,
     RoutineGenerationRequestSerializer,
+    AIChatQuerySerializer,
 )
 
 
@@ -216,7 +218,7 @@ def chat_view(request):
                  return render(request, template_name, {'user': user}) # Pass user object
 
             genai.configure(api_key=api_key)
-            model_name = getattr(settings, 'GEMINI_MODEL_NAME', 'models/gemini-1.5-flash')
+            model_name = getattr(settings, 'GEMINI_MODEL_NAME', 'models/gemini-2.0-flash')
             model = genai.GenerativeModel(model_name)
 
             # --- Construct the Prompt (Using the simpler, preferred structure) ---
@@ -476,7 +478,7 @@ class RoutineViewSet(viewsets.ModelViewSet):
                 return Response({'error': 'AI service configuration error.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
             genai.configure(api_key=api_key)
-            model_name = getattr(settings, 'GEMINI_MODEL_NAME', 'models/gemini-1.5-flash')
+            model_name = getattr(settings, 'GEMINI_MODEL_NAME', 'models/gemini-2.0-flash')
             model = genai.GenerativeModel(model_name)
 
             # --- Construct the Prompt (Using the simpler, preferred structure) ---
@@ -498,21 +500,34 @@ class RoutineViewSet(viewsets.ModelViewSet):
 
             ```json
             {
-              "routine_description": "string (A brief overall summary...)",
+              "routine_description": "string (A brief overall summary of the weekly plan's strategy and goals based on the user profile and goal)",
               "weekly_plan": [
                 {
-                  "day_of_week": "integer (1 for Monday...)",
-                  "day_name": "string (e.g., 'Monday - Upper Body Strength'...)",
-                  "diet": { ... },
-                  "workout": [ { ... } ]
+                  "day_of_week": "integer (1 for Monday, 2 for Tuesday, ..., 7 for Sunday)",
+                  "day_name": "string (e.g., 'Monday - Upper Body Strength', 'Tuesday - Cardio & Core', 'Rest Day')",
+                  "diet": {
+                    "description": "string (Detailed meal suggestions for the day: Breakfast, Lunch, Dinner, Snacks. Provide specific food ideas and portion guidance appropriate for the user's goal.)",
+                    "total_calories": "integer (Estimated total daily calorie target for this specific day, tailored to the user's goal. Must be a whole number.)"
+                  },
+                  "workout": [
+                    {
+                      "name": "string (Specific exercise name, e.g., 'Barbell Bench Press', 'Running', 'Plank')",
+                      "description": "string (: Brief execution tip, form focus, or intensity level. For AMRAP, mention 'Perform as many reps as possible' here. For timed holds like Planks, mention duration unit here e.g., 'Hold for seconds indicated in reps')",
+                      "sets": "integer (Number of sets. Must be a whole number. Use 1 for single-bout cardio/duration exercises like running.)",
+                      "reps": "integer (Number of repetitions per set. Use for rep-based exercises like Bench Press. **Use 0 or 1 if the exercise is primarily time-based and uses the 'duration' field.** Use -1 for AMRAP.)",
+                      "duration": "integer (Duration of the exercise **IF** it's time-based, like Running, Cycling, Plank. **The unit (seconds or minutes) MUST be specified in the 'description' field.** Use 0 if the exercise is purely repetition-based.)"
+                    }
+                    // Add more exercise objects for the day's workout as needed.
+                    // Ensure ALL exercise objects include 'name', 'description', 'sets', and 'reps'.
+                    // If it's a rest day workout-wise, this array should be empty: []
+                  ]
                 }
-                // *** Include exactly 7 day objects... ***
+                // *** Include exactly 7 day objects in this list, one for each day from Monday (1) to Sunday (7). ***
               ]
             }
             ```
             Ensure the output is only the valid JSON data, adhering strictly to the specified types (string, integer). Pay close attention to providing only integers for 'total_calories', 'sets', and 'reps' (unless reps is -1 for AMRAP). Do not add any conversational text outside the JSON structure.
             """
-
             # Combine just the essential parts for the prompt
             prompt = base_prompt + goal_instruction + "\n\n" + json_format_instruction
 
@@ -572,3 +587,138 @@ class RoutineViewSet(viewsets.ModelViewSet):
     # and RoutineSerializer, protected by IsAuthenticated.
 
 # --- End DRF ViewSet ---
+
+
+
+class GeneralAIChatView(APIView):
+    """
+    API endpoint for general chat interactions with the AI.
+    Expects a JSON payload like: {"user_query": "Your question here"}
+    Returns a JSON payload like: {"ai_response": "AI's answer"}
+    Uses token-based authentication.
+    Does NOT save chat history to the database.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = AIChatQuerySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user_query = serializer.validated_data['user_query']
+        user = request.user # User from token
+
+        print(f"--- Received General Chat Query from user: {user.username} ---")
+        print(f"Query: {user_query}")
+
+        ai_generated_text = None # To store the raw text from AI before JSON formatting
+
+        try:
+            api_key = os.environ.get('GOOGLE_API_KEY')
+            if not api_key:
+                print("CRITICAL ERROR: GOOGLE_API_KEY environment variable not set (AIChatView).")
+                return Response({'error': 'AI service configuration error.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+            genai.configure(api_key=api_key)
+            # You might use the same model or a different one optimized for chat/general queries
+            model_name = getattr(settings, 'GEMINI_CHAT_MODEL_NAME', 'models/gemini-1.5-flash-latest') # Or your preferred chat model
+            model = genai.GenerativeModel(model_name)
+
+            # --- Construct the Prompt for General Chat ---
+            # Keep the prompt simple for general chat, but instruct for JSON output.
+            # You can add system prompts or persona instructions here if desired.
+            prompt_instruction = (
+                "You are a helpful AI assistant. "
+                "The user will ask a question or make a statement. Provide a concise and helpful response. "
+                "Format your entire response STRICTLY as a single JSON object with one key: 'ai_response'. "
+                "Provide the user with the link of youtube tutorials if you are asked and they must be inside the exact same key for your responce"
+                "The value for 'ai_response' should be your textual answer to the user's query. "
+                "Example: {\"ai_response\": \"Your generated answer here.\"}. "
+                "Do NOT include any text, explanations, or markdown formatting (like ```json) before or after the JSON block. "
+                "The entire response MUST start with { and end with }."
+            )
+            
+            # You might want to prepend some context or a system message
+            # For simple one-off chats, the user query might be enough with the JSON instruction.
+            # For more conversational AI, you'd pass chat history.
+            # For now, let's make the AI respond to the user_query directly but wrap it in the required JSON.
+
+            # This prompt tells the AI what it should *produce* as output structure
+            full_prompt = f"{prompt_instruction}\n\nUser's query: {user_query}"
+
+
+            print(f"--- Sending Prompt to AI (AIChatView) for user: {user.username} ---")
+            # print(f"Full Prompt: {full_prompt}") # For debugging
+
+            safety_settings = [
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+            ]
+            
+            # For simple chat, using generate_content is fine.
+            # For conversational chat, you would use model.start_chat() and chat.send_message()
+            response = model.generate_content(full_prompt, safety_settings=safety_settings)
+            ai_generated_text = response.text # This is what the AI returns, hopefully as JSON
+            
+            print("--- Raw AI Response (AIChatView) ---")
+            # print(ai_generated_text) # Avoid logging raw response in prod
+            print("-----------------------------------")
+
+            # --- Validate and Return the AI's JSON Response ---
+            # The AI should ideally return the JSON directly based on the prompt.
+            # We still need to validate it.
+            try:
+                # Attempt to clean any potential markdown/text before/after the JSON
+                cleaned_response_text = ai_generated_text.strip()
+                if cleaned_response_text.startswith("```json"):
+                    cleaned_response_text = cleaned_response_text[7:]
+                if cleaned_response_text.endswith("```"):
+                    cleaned_response_text = cleaned_response_text[:-3]
+                cleaned_response_text = cleaned_response_text.strip()
+
+                if not cleaned_response_text:
+                    raise json.JSONDecodeError("Received empty or whitespace-only response from AI.", "", 0)
+                if not cleaned_response_text.startswith('{') or not cleaned_response_text.endswith('}'):
+                    # If AI didn't follow JSON instruction, wrap its text into the desired JSON structure
+                    print(f"AI did not return valid JSON. Wrapping its response: '{ai_generated_text[:100]}...'")
+                    ai_response_content = ai_generated_text # Use the raw text as the content
+                    # Manually create the JSON structure
+                    response_data = {"ai_response": ai_response_content}
+                    # No need to json.loads here, we are constructing the dict
+                else:
+                    # AI likely returned JSON, try to parse it to ensure it's valid
+                    # and that it contains the 'ai_response' key.
+                    parsed_json = json.loads(cleaned_response_text)
+                    if "ai_response" not in parsed_json:
+                        # If AI returned JSON but not the right structure, wrap its raw text.
+                        print(f"AI returned JSON but without 'ai_response' key. Wrapping its response: '{ai_generated_text[:100]}...'")
+                        response_data = {"ai_response": ai_generated_text}
+                    else:
+                        response_data = parsed_json # Use the JSON as returned by AI
+
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            except json.JSONDecodeError as json_err:
+                print(f"AIChatView JSON Decode Error for user {user.username}: {json_err}")
+                print(f"Failed raw AI response (AIChatView) preview (first 500 chars):\n{ai_generated_text[:500] if ai_generated_text else 'None'}")
+                # If parsing fails, send the raw AI text as the content of ai_response
+                # This is a fallback if the AI completely fails to produce JSON.
+                return Response({'ai_response': ai_generated_text if ai_generated_text else "AI response was empty or unparsable."}, 
+                                status=status.HTTP_200_OK) # Still 200 OK, but client needs to handle potentially non-JSON text
+
+        except genai.types.generation_types.BlockedPromptException as blocked_err:
+            print(f"AIChatView AI Generation Blocked for user {user.username}: {blocked_err}")
+            return Response({'error': 'Your query was blocked by safety filters.'}, status=status.HTTP_400_BAD_REQUEST)
+        except genai.types.generation_types.StopCandidateException as stop_err:
+            print(f"AIChatView AI Generation Stopped Early for user {user.username}: {stop_err}")
+            return Response({
+                'error': f'AI stopped generating unexpectedly. (Reason: {stop_err})',
+                'raw_response_preview': ai_generated_text[:500] if ai_generated_text else None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            print(f"Unexpected error during AIChatView interaction for user {user.username}: {e}")
+            print(traceback.format_exc())
+            return Response({'error': f'An unexpected server error occurred: {str(e)}'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

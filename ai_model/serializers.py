@@ -86,3 +86,9 @@ class RoutineGenerationRequestSerializer(serializers.Serializer):
         if value <= 0:
             raise serializers.ValidationError("Age must be a positive number.")
         return value
+
+
+
+
+class AIChatQuerySerializer(serializers.Serializer):
+    user_query = serializers.CharField(max_length=2000, trim_whitespace=True)

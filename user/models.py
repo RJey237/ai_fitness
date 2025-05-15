@@ -12,6 +12,7 @@ class CustomUser(AbstractUser, ModelWithTimeStamp):
     is_verified = models.BooleanField(default=False)
     profile_image = models.ImageField(upload_to="profile_image/", blank=True, null=True) 
     user_permissions=models.ManyToManyField( "auth.Permission",verbose_name=_("user permissions"),blank=True, help_text=_("Specific permissions for this user."),related_name="customuser_permissions",related_query_name="customuser",)
+    google_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     groups = models.ManyToManyField(
         "auth.Group",
         verbose_name=_("groups"),
@@ -35,6 +36,8 @@ class CustomUser(AbstractUser, ModelWithTimeStamp):
             return self.profile_image.url
         else:
             return ''
+    
+
     
 class Bmi(models.Model):
     class Gender(models.TextChoices):

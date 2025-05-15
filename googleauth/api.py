@@ -1,20 +1,27 @@
+
+
 from django.urls import path, include
-from .views import GoogleLoginViewSet, GoogleCallbackViewSet
 from rest_framework.routers import DefaultRouter
 
-# router = DefaultRouter()
-# router.register(r'auth/google', GoogleLoginViewSet, basename='google-login')
-# router.register(r'auth/google', GoogleCallbackViewSet, basename='google-callback')
 
-# urlpatterns = [
-#     path('', include(router.urls)),
-# ]from django.urls import path
+from .views import GoogleLoginViewSet, GoogleCallbackViewSet 
+from .views import GoogleSignInViewSet 
+router = DefaultRouter()
 
+router.register(r'auth/google', GoogleSignInViewSet, basename='google-signin-api')
 
-google_login = GoogleLoginViewSet.as_view({'get': 'login_start'})
-google_callback = GoogleCallbackViewSet.as_view({'get': 'callback_handler'})
+web_google_login_start = GoogleLoginViewSet.as_view({'get': 'login_start'})
+web_google_callback_handler = GoogleCallbackViewSet.as_view({'get': 'callback_handler'})
+
 
 urlpatterns = [
-    path('auth/google/login/', google_login, name='google-login'),
-    path('auth/google/callback/', google_callback, name='google-callback'),
+
+    path('api/', include(router.urls)), 
+
+
+    path('web/auth/google/login/', web_google_login_start, name='web-google-login-start'),
+    path('web/auth/google/callback/', web_google_callback_handler, name='web-google-callback'),
+
+
 ]
+
